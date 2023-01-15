@@ -53,7 +53,7 @@ Dada la factura suiguiente:
 
     Analizar la estructura de datos.
 
-[Solución propuesta](https://github.com/ana-polo/LMSGI-E02-Factura/blob/main/LMSGI-E02-Factura-Arbol.pdf)
+[Solución propuesta](https://github.com/ana-polo/LMSGI-E02_Factura/blob/main/Solucion/LMSGI-E02-Factura-Arbol.pdf)
 
 ### Apartado 2
 
