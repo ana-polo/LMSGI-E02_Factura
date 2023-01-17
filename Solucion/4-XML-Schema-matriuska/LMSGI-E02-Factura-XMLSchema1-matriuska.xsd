@@ -68,7 +68,14 @@
 							<xs:element name = "direccion" >
 								<xs:complexType>
 									<xs:sequence>
-										<xs:element name = "calle" type = "xs:string" />
+										<xs:element name = "calle" type = "xs:string" >
+											<xs:simpleType>
+												<xs:restriction base = "xs:string" >
+													<xs:pattern value = "([A-Z][a-z]+ ?)(([A-Z]|[a-z])[a-z]+ ?)*" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+
 										<xs:element name = "numero" type = "xs:positiveInteger" />
 
 										<!-- Definición cp. Está formado de 5 dígitos -->
@@ -83,8 +90,21 @@
 										
 										<!-- Fin cp -->
 										
-										<xs:element name = "ciudad" type = "xs:string" />
-										<xs:element name = "provincia" type = "xs:string" />
+										<xs:element name = "ciudad" type = "xs:string" >
+											<xs:simpleType>
+												<xs:restriction base = "xs:string" >
+													<xs:pattern value = "([A-Z][a-z]+ ?)(([A-Z]|[a-z])[a-z]+ ?)*" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										
+										<xs:element name = "provincia" type = "xs:string" >
+											<xs:simpleType>
+												<xs:restriction base = "xs:string" >
+													<xs:pattern value = "([A-Z][a-z]+ ?)(([A-Z]|[a-z])[a-z]+ ?)*" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
@@ -168,14 +188,23 @@
 							<xs:element name = "estado" >
 								<xs:simpleType>
 									<xs:restriction base = "xs:string" >
-										<xs:pattern value = "(([A-Z]|[a-z])+(.|,)?( )?)+" />
+										<xs:enumeration value = "pendiente" />
+										<xs:enumeration value = "pagado" />
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:element>
 
-							<!-- Definición de descripcion -->
+							<!-- Definición de estado -->
 
-							<xs:element name = "descripcion" type = "xs:string" />
+							<xs:element name = "descripcion" type = "xs:string" >
+								<xs:simpleType>
+									<xs:restriction base = "xs:string" >
+										<xs:pattern value = "(([A-Z]|[a-z])+(.|,)?( )?)+" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							
+							<!-- Fin descripción -->
 
 							<!-- Definición de importe -->
 
