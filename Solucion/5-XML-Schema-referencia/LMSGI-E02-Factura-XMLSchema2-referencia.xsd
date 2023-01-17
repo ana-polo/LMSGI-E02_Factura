@@ -9,65 +9,157 @@
 			<fichero>LMSGI-E02-Factura-XMLSchema1-matriuska</fichero>
 			<fechaCreacion>2013</fechaCreacion>
 			<autor>Ana Polo Arozamena</autor>
-			<utilidad>Ejemplo de vocabulario XML en XML Schema usando referencias</utilidad>
+			<aplicación>Ejemplo de vocabulario XML en XML Schema usando referencias</aplicación>
 			<funcionalidad>Validación de facturas de una clínica.</funcionalidad>
 		</xs:documentation>
 	</xs:annotation>
 
-	<!-- ****************** -->
-	<!-- Elementos globales -->
-	<!-- ****************** -->
-
-	<!-- Definición de datoNumerico -->
-
-	<xs:element name = "datoNumerico" >
-		<xs:simpleType>
-			<xs:restriction base = "xs:decimal" >
-				<xs:fractionDigits value = "2" />
-			</xs:restriction>
-		</xs:simpleType>
-	</xs:element>
-
-	<!-- Fin datoNumerico -->
-
-	<!-- Definición de moneda -->
-
-	<xs:element name = "moneda" >
-		<xs:simpleType>
-			<xs:restriction base = "xs:string" >
-				<xs:enumeration value = "€ Euros" />
-				<xs:enumeration value = "$ Dolares" />
-				<xs:enumeration value = "£ Libras" />
-				<xs:enumeration value = "¥ Yenes" />
-			</xs:restriction>
-		</xs:simpleType>
-	</xs:element>
-
-	<!-- Fin moneda -->
-
-	
 	<!-- ************** -->
 	<!-- TIPOS DE DATOS -->
 	<!-- ************** -->
 
+	<!-- Definición de tipoTexto: 
+	     Restricción: Solo permite frases, de cualquier  longitud, formadas por letras, puntos y comas 
+		 Aplicación: Bloques de texto.
+	-->
+	
 	<xs:simpleType name = "tipoTexto" >
 		<xs:restriction base = "xs:string" >
 			<xs:pattern value = "(([A-Z]|[a-z])+(.|,)?( )?)+" />
 		</xs:restriction>
 	</xs:simpleType>
 	
+	<!-- Fin tipoTexto -->
 
+	
+	<!-- Definición de tipoNombre 
+	     Restricción: Solo permite frases, de 20 caracteres de longitud, formadas por letras, puntos y comas 
+		 Aplicación: Nombres, apellidos.
+	-->
+	
 	<xs:simpleType name = "tipoNombre" >
 		<xs:restriction base = "xs:string" >
+			<xs:maxLength value = "20" />
 			<xs:pattern value = "([A-Z][a-z]+ ?)(([A-Z]|[a-z])[a-z]+ ?)*" />
 		</xs:restriction>
 	</xs:simpleType>
+
+	<!-- Fin tipoNombre -->
+
+
+	<!-- Definición de tipoCif. 
+    	 Restricción: Es una cadena de texto de 9 caracteres. EL primer carácter 
+		 siempre es una letra mayúscula, los 6 siguientes son dígitos y el último 
+		 puede ser un dígito o una letra mayúscula. 
+	-->
+
+	<xs:simpleType name = "cif" >
+		<xs:restriction base = "xs:string" >
+			<xs:pattern value = "[A-z]\d{6}(\d|[A-Z])" />
+		</xs:restriction>
+	</xs:simpleType>
 	
+	<!-- Fin cif -->
+
+	
+	<!-- Definición tipoCp. 
+   		 Restricción: Cadena de texto de 5 dígitos 
+		 Aplicación: representación del código postal
+	-->
+
+		<xs:simpleType name = "tipoCp" >
+			<xs:restriction base = "xs:string" >
+				<xs:pattern value = "\d{5}" />
+			</xs:restriction>
+		</xs:simpleType>
+
+	<!-- Fin tipoCp -->
+
+
+	<!-- Definición tipoDireccion -->
+
+		<xs:complexType name = "tipoDireccion" >
+			<xs:sequence>
+				
+				<!-- Dentro de esta cláusula se definen los elementos posibles teniendo en cuenta que es obligatorio
+				     definir uno y solo uno de ellos. en este caso, su uso se justifica por definir el tipo de vía
+					 para el procesamiento de los datos, aunque no para el guardado explícito de esa información.-->
+				
+				<xs:choice>
+					<xs:element name = "calle" type = "tipoNombre" />
+					<xs:element name = "avenida" type = "tipoNombre" />
+					<xs:element name = "barrio" type = "tipoNombre" />
+					<xs:element name = "plaza" type = "tipoNombre" />
+					<xs:element name = "calle" type = "tipoNombre" />
+				</xs:choice>
+
+				<xs:element name = "numero" type = "xs:positiveInteger" />										
+				<xs:element name = "ciudad" type = "tipoNombre" />
+				<xs:element name = "cp" type = "tipoCp" />
+				<xs:element name = "provincia" type = "tipoNombre" />
+			</xs:sequence>
+		</xs:complexType>
+
+	<!-- Fin tipodirección -->
+
+	
+	<!-- Definición de tipoDosDecimales 
+			Restricción: Valor numérico con dos decimales.
+	-->
+	
+	<xs:simpleType name = "tipoDosDecimales" >
+		<xs:restriction base = "xs:decimal" >
+			<xs:fractionDigits value = "2" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	
+	<!-- Definición de tipoCuantiaEconomica 
+		 Restricción: Dato formado por dos valores decimales con dos decimales y una cadena de texto. 
+					  El primer campo es opcional e indica un tanto por ciento, el otro numérico la 
+					  cuantía del dato y la cadena de texto representa la momeda a la que hace referencia 
+					  la cuantía.
+		 Aplicación: Importes económicos.
+	-->
+
+	<xs:complexType name = "tipocuantiaEconomica" >
+		<xs:sequence>
+			<xs:element minOccurs = "0" name = "tantoPorCiento" type = "tipoDosDecimales" />
+			<xs:element name = "datoNumerico" type = "tipoDosDecimales" />
+			
+			<!-- Definición de moneda 
+			     Restricción: Solo admite los valores de divisa especificados.
+				 Aplicación: Determina la divisa a la que referencian los datos de la factura.
+			-->
+			
+			<xs:element name = "moneda" >
+			<xs:simpleType>
+				<xs:restriction base = "xs:string" >
+					<xs:enumeration value = "€ Euros" />
+					<xs:enumeration value = "$ Dolares" />
+					<xs:enumeration value = "£ Libras" />
+					<xs:enumeration value = "¥ Yenes" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+	</xs:sequence>
+	</xs:complexType>
+
+	<!-- Fin tipoCuantiaEconomica -->
+		
+		
+	<!-- ************************** -->
+	<!-- Definición del vocabulario -->
+	<!-- ************************** -->
 
 	<!-- ********* -->
 	<!-- ELEMENTOS -->
 	<!-- ********* -->
+		
+	<!-- Nivel 1 -->
 
+	<!-- Definición del ejemplar: factura -->
+	
 	<xs:element name = "factura" >
 		<xs:complexType>
 			<xs:sequence>
@@ -82,6 +174,8 @@
 			<xs:attribute ref = "codigoFactura" use = "required" />
 		</xs:complexType>
 	</xs:element>
+	
+	<!-- Fin ejemplar -->
 
 
 	<!-- Definición cabecera -->
@@ -103,7 +197,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref = "identificador" />
-				<xs:element ref = "direccion" />
+				<xs:element name = "direccion" type = "tipoDireccion" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -119,6 +213,14 @@
 				<xs:element name = "nombre" type = "tipoNombre" />
 				<xs:element name = "apellido1" type = "tipoNombre" />
 				<xs:element name = "apellido2" type = "tipoNombre" />
+				
+				<!-- Lo razonable es que en la factura aparezca el dni y el domicilio del receptor, esto sería:
+				
+					<xs:element name = "cif" type = "tipoCif" >
+					<xs:element name = "direccion" type = "tipoDireccion" >
+				
+				-->
+				
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -139,345 +241,79 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element ref = "estado" />
-
-
-
-
-
-					<!-- Definición identificador -->
-
-				<xs:element name = "identificador" >
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name = "nombreClinica" type = "xs:string" />
-										
-							<!-- Definición de cif. Es una cadena de texto de 9 caracteres. 
-								EL primer carácter siempre es una letra mayúscula, los 6 
-								siguientes son dígitos y el último puede ser un dígito o una letra mayúscula. -->
-										
-							<xs:element name = "cif" >
-								<xs:simpleType>
-									<xs:restriction base = "xs:string" >
-										<xs:pattern value = "[A-z]\d{6}(\d|[A-Z])" />
-									</xs:restriction>
-								</xs:simpleType>
-							</xs:element>
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-
-				<!-- Fin de identificador -->
-
-				<!-- Definición direccion -->
-
-				<xs:element name = "direccion" >
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name = "calle" type = "xs:string" />
-							<xs:element name = "numero" type = "xs:positiveInteger" />
-
-							<!-- Definición cp. Está formado de 5 dígitos -->
-
-							<xs:element name = "cp" >
-								<xs:simpleType>
-									<xs:restriction base = "xs:string" >
-										<xs:pattern value = "\d{5}" />
-									</xs:restriction>
-								</xs:simpleType>
-							</xs:element>
-										
-							<!-- Fin cp -->
-										
-							<xs:element name = "ciudad" type = "xs:string" />
-							<xs:element name = "provincia" type = "xs:string" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-
-				<!-- Fin direccion -->
-	
-	
-				<!-- Definición de estado -->
-
-				<xs:element name = "estado" >
-					<xs:simpleType>
-						<xs:restriction base = "xs:string" >
-							<xs:pattern value = "(([A-Z]|[a-z])+(.|,)?( )?)+" />
-						</xs:restriction>
-					</xs:simpleType>
-				</xs:element>
-
-				<!-- Definición de descripcion -->
-
-				<xs:element name = "descripcion" type = "xs:string" />
-
-							<!-- Definición de importe -->
-
-							<xs:element name = "importe" >
-								<xs:complexType>
-									<xs:sequence>
-
-
-									</xs:sequence>
-								</xs:complexType>
-							</xs:element>
-
-							<!-- Fin importe -->
-
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-
-				<!-- Fin planPrueba -->
-
-				<!-- Definición de datosEconomicos -->
-
-				<xs:element name = "datosEconomicos" >
-					<xs:complexType>
-						<xs:sequence>
-							
-					<!-- Definición de subtotal -->
-
-					<xs:element name = "subtotal"  >
-						<xs:complexType>
-							<xs:sequence>
-
-								<!-- Definición de datoNumerico -->
-
-								<xs:element name = "datoNumerico" >
-									<xs:simpleType>
-										<xs:restriction base = "xs:decimal" >
-											<xs:fractionDigits value = "2" />
-										</xs:restriction>
-									</xs:simpleType>
-								</xs:element>
-
-								<!-- Fin datoNumerico -->
-
-								<!-- Definición de moneda -->
-
-								<xs:element name = "moneda" >
-									<xs:simpleType>
-										<xs:restriction base = "xs:string" >
-											<xs:enumeration value = "€ Euros" />
-											<xs:enumeration value = "$ Dolares" />
-											<xs:enumeration value = "£ Libras" />
-											<xs:enumeration value = "¥ Yenes" />
-										</xs:restriction>
-									</xs:simpleType>
-								</xs:element>
-
-								<!-- Fin moneda -->
-
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>							
-							
-					<!-- Fin subtotal -->
-
-					<!-- Definición de descuento -->
-							
-					<xs:element name = "descuento"  >
-						<xs:complexType>
-							<xs:sequence>
-
-							<!-- Definición de datoNumerico -->
-
-							<xs:element name = "datoNumerico" >
-								<xs:simpleType>
-									<xs:restriction base = "xs:decimal" >
-										<xs:fractionDigits value = "2" />
-									</xs:restriction>
-								</xs:simpleType>
-							</xs:element>
-
-							<!-- Fin datoNumerico -->
-
-							<!-- Definición de moneda -->
-
-							<xs:element name = "moneda" >
-								<xs:simpleType>
-									<xs:restriction base = "xs:string" >
-										<xs:enumeration value = "€ Euros" />
-										<xs:enumeration value = "$ Dolares" />
-										<xs:enumeration value = "£ Libras" />
-										<xs:enumeration value = "¥ Yenes" />
-									</xs:restriction>
-								</xs:simpleType>
-							</xs:element>
-
-							<!-- Fin moneda -->
-
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-
-				<!-- Fin descuento -->
-
-				<!-- Definición de retencion -->
-
-							<xs:element name = "retencion"  >
-								<xs:complexType>
-									<xs:sequence>
-
-										<!-- Definición de tantoPorCiento -->
-
-										<xs:element name = "tantoPorCiento" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:decimal" >
-													<xs:fractionDigits value = "2" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin tantoPorCiento -->
-
-										<!-- Definición de datoNumerico -->
-
-										<xs:element name = "datoNumerico" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:decimal" >
-													<xs:fractionDigits value = "2" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin datoNumerico -->
-
-										<!-- Definición de moneda -->
-
-										<xs:element name = "moneda" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:string" >
-													<xs:enumeration value = "€ Euros" />
-													<xs:enumeration value = "$ Dolares" />
-													<xs:enumeration value = "£ Libras" />
-													<xs:enumeration value = "¥ Yenes" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin moneda -->
-
-									</xs:sequence>
-								</xs:complexType>
-							</xs:element>
-							
-							<!-- Fin retencion -->
-							
-							<!-- Definición de iva -->
-
-							<xs:element name = "iva"  >
-								<xs:complexType>
-									<xs:sequence>
-
-										<!-- Definición de tantoPorCiento -->
-
-										<xs:element name = "tantoPorCiento" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:decimal" >
-													<xs:fractionDigits value = "2" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin tantoPorCiento -->
-
-										<!-- Definición de datoNumerico -->
-
-										<xs:element name = "datoNumerico" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:decimal" >
-													<xs:fractionDigits value = "2" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin datoNumerico -->
-
-										<!-- Definición de moneda -->
-
-										<xs:element name = "moneda" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:string" >
-													<xs:enumeration value = "€ Euros" />
-													<xs:enumeration value = "$ Dolares" />
-													<xs:enumeration value = "£ Libras" />
-													<xs:enumeration value = "¥ Yenes" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin moneda -->
-
-									</xs:sequence>
-								</xs:complexType>
-							</xs:element>
-
-							<!-- Fin iva -->
-
-							<!-- Definición de total -->
-
-							<xs:element name = "total"  >
-								<xs:complexType>
-									<xs:sequence>
-
-										<!-- Definición de datoNumerico -->
-
-										<xs:element name = "datoNumerico" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:decimal" >
-													<xs:fractionDigits value = "2" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin datoNumerico -->
-
-										<!-- Definición de moneda -->
-
-										<xs:element name = "moneda" >
-											<xs:simpleType>
-												<xs:restriction base = "xs:string" >
-													<xs:enumeration value = "€ Euros" />
-													<xs:enumeration value = "$ Dolares" />
-													<xs:enumeration value = "£ Libras" />
-													<xs:enumeration value = "¥ Yenes" />
-												</xs:restriction>
-											</xs:simpleType>
-										</xs:element>
-
-										<!-- Fin moneda -->
-
-									</xs:sequence>
-								</xs:complexType>
-							</xs:element>
-
-							<!-- Fin planPrueba -->
-
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-
-				<!-- Fin datosEconomicos -->
-
+				<xs:element name = "descripcion" type = "tipoTexto" />
+				<xs:element name = "importe" type = "tipoCuantiaEconomica" />
 			</xs:sequence>
-		
-			<!-- Definición del ´codigoFactura. Está formado por 4 letras minúsculas, una barra y 5 dígitos -->
-
-			<xs:attribute name = "codigo_factura" use = "required" >
-				<xs:simpleType>
-					<xs:restriction base = "xs:string" >
-						<xs:pattern value= "[a-z]{4}(\/)(\d){5}" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-
-			<!-- Fin codigoFactura -->
-
 		</xs:complexType>
 	</xs:element>
+
+	<!-- Fin planPrueba -->
 	
-	<!-- Fin Factura -->
+
+	<!-- Definición de datosEconomicos -->
+
+	<xs:element name = "datosEconomicos" >
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name = "subtotal" type = "tipoCuantiaEconomica" />
+				<xs:element name = "descuento" type = "tipoCuantiaEconomica" />
+				<xs:element name = "retencion" type = "tipoCuantiaEconomica" />
+				<xs:element name = "iva" type = "tipoCuantiaEconomica" />
+				<xs:element name = "total" type = "tipoCuantiaEconomica" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Fin datosEconomicos -->
+	
+	
+	<!-- *** Nivel 2 *** -->
+
+	<!-- Definición identificador -->
+
+	<xs:element name = "identificador" >
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name = "nombreClinica" type = "tipoNombre" />
+				<xs:element name = "cif" type = "tipoCif" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Fin identificador -->
+
+	
+	<!-- Definición de estado -->
+
+	<xs:element name = "estado" >
+		<xs:simpleType>
+			<xs:restriction base = "xs:string" >
+				<xs:enumeration value = "pendiente" />
+				<xs:enumeration value = "pagada" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+				
+	<!-- Fin estado -->
+
+	
+	<!-- ******** -->
+	<!-- ATRIBUTOS -->
+	<!-- ******** -->
+
+	
+	<!-- Definición del ´codigoFactura. 
+	     Restricción: Está formado por 4 letras minúsculas, una barra y 5 dígitos.
+	-->
+
+	<xs:attribute name = "codigo_factura" >
+		<xs:simpleType >
+			<xs:restriction base = "xs:string" >
+				<xs:pattern value= "[a-z]{4}(\/)(\d){5}" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+
+	<!-- Fin CodigoFactura -->
 
 </xs:schema>
